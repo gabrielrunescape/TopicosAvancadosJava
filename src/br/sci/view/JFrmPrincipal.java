@@ -120,8 +120,9 @@ private void jMenuCadastroActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     }//GEN-LAST:event_jMenuItemSairActionPerformed
 
     private void jMenuItemVeiculoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemVeiculoActionPerformed
-        JFrmVeiculo frame = new JFrmVeiculo(1, null);
-        frame.show();
+        jTabbedPane.add("Veiculos", new JFrmPesqVeiculo(this) );
+        jTabbedPane.setSelectedIndex(jTabbedPane.getTabCount()-1);
+        jTabbedPane.getSelectedComponent().requestFocus();
     }//GEN-LAST:event_jMenuItemVeiculoActionPerformed
 
     /**

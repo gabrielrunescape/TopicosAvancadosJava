@@ -7,31 +7,37 @@
 package br.sci.view;
 
 import java.util.List;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import br.sci.model.Veiculo;
+import br.sci.utils.ExcecaoSCA;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import java.awt.event.KeyEvent;
 import javax.swing.table.TableColumn;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
+import br.sci.controller.CtrCadastroVeiculo;
 import javax.swing.table.DefaultTableCellRenderer;
 /**
  *
  * @author  Administrador
  */
 public class JFrmPesqVeiculo extends javax.swing.JPanel {
+    private JFrame parent;
+    List<Veiculo> veiculos;
+    private Veiculo veiculo;
     private TableColumn cColuna = null;
-    private javax.swing.JFrame parent;
+    CtrCadastroVeiculo ctrCadastroVeiculo = CtrCadastroVeiculo.getInstance();
     
-    /** Creates new form CursoJPanel */
-    public JFrmPesqVeiculo(javax.swing.JFrame parent) {
+    public JFrmPesqVeiculo(JFrame parent) {
         try {
             initComponents();
             this.parent = parent;
-            alunos = ctrCadastroAluno.listarTodos(cbFiltro.getSelectedIndex());
-            atualizarTabela(alunos);
+            veiculos = ctrCadastroVeiculo.listarTodos();
+            atualizarTabela(veiculos);
         } catch (ExcecaoSCA ex) {
-             JOptionPane.showMessageDialog(null,ex.getMsg(),"Validação",JOptionPane.ERROR_MESSAGE);             
+             JOptionPane.showMessageDialog(null, ex.getMsg(),"Validação" ,JOptionPane.ERROR_MESSAGE);             
         }
 }
     @SuppressWarnings("unchecked")
@@ -53,7 +59,7 @@ public class JFrmPesqVeiculo extends javax.swing.JPanel {
         jTextFieldPesquisa = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTableAluno = new javax.swing.JTable();
+        tblVeiculo = new javax.swing.JTable();
 
         addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
@@ -129,9 +135,10 @@ public class JFrmPesqVeiculo extends javax.swing.JPanel {
         jLabel.setText("Pesquisar por:");
 
         cbFiltro.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Matrícula", "Nome" }));
-        cbFiltro.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbFiltroActionPerformed(evt);
+
+        jTextFieldPesquisa.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTextFieldPesquisaKeyPressed(evt);
             }
         });
 
@@ -164,19 +171,19 @@ public class JFrmPesqVeiculo extends javax.swing.JPanel {
                 .add(73, 73, 73))
         );
 
-        jTableAluno.setModel(new javax.swing.table.DefaultTableModel(
+        tblVeiculo.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Matrícula", "Nome", "Curso"
+                "Código", "Modelo", "Fabricação", "Modelo", "Cor", "Chassi", "Cadastro"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -187,12 +194,12 @@ public class JFrmPesqVeiculo extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
-        jTableAluno.addMouseListener(new java.awt.event.MouseAdapter() {
+        tblVeiculo.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jTableAlunoMouseClicked(evt);
+                tblVeiculoMouseClicked(evt);
             }
         });
-        jScrollPane2.setViewportView(jTableAluno);
+        jScrollPane2.setViewportView(tblVeiculo);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -223,90 +230,53 @@ private void Fechar() {
         }
     }
 
-private void configurarBotoes(){
-        boolean ok = (jTableAluno.getRowCount() > 0 );
+    private void configurarBotoes(){
+        boolean ok = (tblVeiculo.getRowCount() > 0 );
         jButtonAlterar.setEnabled(ok);
         jButtonExcluir.setEnabled(ok);
         jButtonConsultar.setEnabled(ok);
     }
 
 
-private void atualizarTabela(List <Aluno> alunos) {
-        
+    private void atualizarTabela(List<Veiculo> veiculos) {
         //limpa campos jtable
         DefaultTableModel dtmLimpar;
-        dtmLimpar = (DefaultTableModel) jTableAluno.getModel();
+        dtmLimpar = (DefaultTableModel) tblVeiculo.getModel();
         dtmLimpar.setNumRows(0);
-        
+
         DefaultTableModel dtm;
-        
-        for (Aluno umAluno : alunos){
-            //Carrega os valores no jTable
-            dtm = (DefaultTableModel) jTableAluno.getModel();
+
+        for (Veiculo v : veiculos){
+            dtm = (DefaultTableModel) tblVeiculo.getModel();
+            
             dtm.addRow(new Object[]{ 
-                umAluno.getMatricula(),umAluno.getNome(),
-                umAluno.getCurso().getDescricao()});
+                v.getID(), v.getModelo(),
+                v.getAnoFabricacao(), v.getAnoModelo(),
+                v.getCor().getNome(), v.getChassi(), v.getDataCadastroString()
+            });
         }
-        jTableAluno.getColumnModel().getColumn(0).setPreferredWidth(80);
-        jTableAluno.getColumnModel().getColumn(1).setPreferredWidth(100);
-        jTableAluno.getColumnModel().getColumn(2).setPreferredWidth(100);
-        cColuna = jTableAluno.getColumnModel().getColumn(0);
+        
+        /*tblVeiculo.getColumnModel().getColumn(0).setPreferredWidth(80);
+        tblVeiculo.getColumnModel().getColumn(1).setPreferredWidth(100);
+        tblVeiculo.getColumnModel().getColumn(2).setPreferredWidth(100);*/
+        
+        cColuna = tblVeiculo.getColumnModel().getColumn(0);
+        
         DefaultTableCellRenderer cAlign = new DefaultTableCellRenderer();
         cAlign.setHorizontalAlignment(JLabel.CENTER);
         cColuna.setCellRenderer(cAlign);
         cAlign = null;
-        jTableAluno.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        if (jTableAluno.getRowCount() > 0 )
-            jTableAluno.setRowSelectionInterval(0, 0);
+        
+        tblVeiculo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        if (tblVeiculo.getRowCount() > 0 )
+            tblVeiculo.setRowSelectionInterval(0, 0);
+        
         configurarBotoes();
-}
+    }
 
-
-private void jButtonNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNovoActionPerformed
-        JFrmAluno jDialogAluno;                                           
-        
-        
-        aluno = new Aluno();
-        try{
-            jDialogAluno = new JFrmAluno(parent,0, aluno);
-            jDialogAluno.setLocationRelativeTo(this);
-            jDialogAluno.setVisible(true);
-            if (jDialogAluno.isSucesso())
-            {
-                try {
-                    alunos = ctrCadastroAluno.listarTodos(cbFiltro.getSelectedIndex());
-                    atualizarTabela(alunos);
-                } catch (ExcecaoSCA ex) {
-                    JOptionPane.showMessageDialog(null,ex.getMsg(),"Validação",JOptionPane.ERROR_MESSAGE);
-                }
-            }
-         } catch (ExcecaoSCA ex) {
-            JOptionPane.showMessageDialog(null,ex.getMsg(),"Validação",JOptionPane.ERROR_MESSAGE);
-         }
-       
-}//GEN-LAST:event_jButtonNovoActionPerformed
-
-private void jButtonExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonExcluirActionPerformed
-        if (JOptionPane.showConfirmDialog(null,
-                "Deseja excluir o aluno '"  +
-                jTableAluno.getValueAt(jTableAluno.getSelectedRow(),1) +
-                "'?", "Alunos",
-                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION ) {
-            try {
-                // TODO add your handling code here:
-                aluno = new Aluno();
-                aluno.setMatricula( (Integer) jTableAluno.getValueAt(jTableAluno.getSelectedRow(),0));
-                ctrCadastroAluno.excluir(aluno);
-                alunos = ctrCadastroAluno.listarTodos(cbFiltro.getSelectedIndex());
-                atualizarTabela(alunos);
-            } catch (ExcecaoSCA ex) {
-                 JOptionPane.showMessageDialog(null,ex.getMsg(),"Validação",JOptionPane.ERROR_MESSAGE);             
-            }
-        }
-}//GEN-LAST:event_jButtonExcluirActionPerformed
 
 private void formFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_formFocusGained
-    jTableAluno.requestFocus();
+    tblVeiculo.requestFocus();
 }//GEN-LAST:event_formFocusGained
 
 private void jToolBar1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jToolBar1KeyPressed
@@ -319,55 +289,95 @@ private void formKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKe
             Fechar() ;
 }//GEN-LAST:event_formKeyTyped
 
-private void jButtonAlterarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAlterarActionPerformed
+    private void tblVeiculoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblVeiculoMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblVeiculoMouseClicked
+
+    private void jButtonNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNovoActionPerformed
+        JFrmVeiculo dialog;
+        
+        try{
+            dialog = new JFrmVeiculo(parent, 1, null);
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+            
+            if (dialog.isSucesso()) {
+                try {
+                    veiculos = ctrCadastroVeiculo.listarTodos();
+                    atualizarTabela(veiculos);
+                } catch (ExcecaoSCA ex) {
+                    JOptionPane.showMessageDialog(null,ex.getMsg(), "Validação", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+         } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null,ex.getMessage(), "Validação", JOptionPane.ERROR_MESSAGE);
+         }
+    }//GEN-LAST:event_jButtonNovoActionPerformed
+
+    private void jButtonExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonExcluirActionPerformed
+        if (JOptionPane.showConfirmDialog(null, "Deseja excluir o veiculo '"  + tblVeiculo.getValueAt(tblVeiculo.getSelectedRow(),1) + "'?", "Mensagem de confirmação", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION ) {
+            try {
+                veiculo = new Veiculo();
+                veiculo.setID((Integer) tblVeiculo.getValueAt(tblVeiculo.getSelectedRow(),0));
+                ctrCadastroVeiculo.apagar(veiculo);
+                veiculos = ctrCadastroVeiculo.listarTodos();
+                atualizarTabela(veiculos);
+            } catch (ExcecaoSCA ex) {
+                 JOptionPane.showMessageDialog(null, ex.getMsg(), "Validação", JOptionPane.ERROR_MESSAGE);             
+            }
+        }
+    }//GEN-LAST:event_jButtonExcluirActionPerformed
+
+    private void jButtonConsultarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConsultarActionPerformed
         try {
-            // TODO add your handling code here:
-            JFrmAluno jDialogAluno;  
-            aluno = new Aluno();
-            aluno.setMatricula( (Integer) jTableAluno.getValueAt(jTableAluno.getSelectedRow(),0));
-            ctrCadastroAluno.carregar(aluno);
-            jDialogAluno = new JFrmAluno(parent,1, aluno);
-            jDialogAluno.setLocationRelativeTo(this);
-            jDialogAluno.setVisible(true);
-            if (jDialogAluno.isSucesso()) {
-               // jTableCurso.setValueAt((Object) curso.getDescricao(),jTableCurso.getSelectedRow(),1);
-                alunos = ctrCadastroAluno.listarTodos(cbFiltro.getSelectedIndex());
-                atualizarTabela(alunos);
+            JFrmVeiculo dialog;
+            veiculo = new Veiculo();
+
+            veiculo.setID((Integer) tblVeiculo.getValueAt(tblVeiculo.getSelectedRow(), 0));
+            ctrCadastroVeiculo.carregar(veiculo);
+            
+            dialog = new JFrmVeiculo(parent, 3, veiculo);
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+        } catch (ExcecaoSCA ex) {
+            JOptionPane.showMessageDialog(null, ex.getMsg(), "Validação",JOptionPane.ERROR_MESSAGE);            
+        }
+    }//GEN-LAST:event_jButtonConsultarActionPerformed
+
+    private void jButtonAlterarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAlterarActionPerformed
+        try {
+            JFrmVeiculo dialog;  
+            
+            veiculo = new Veiculo();
+            veiculo.setID((Integer) tblVeiculo.getValueAt(tblVeiculo.getSelectedRow(),0));
+            ctrCadastroVeiculo.carregar(veiculo);
+            
+            dialog = new JFrmVeiculo(parent, 2, veiculo);
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+            
+            if (dialog.isSucesso()) {
+                veiculos = ctrCadastroVeiculo.listarTodos();
+                atualizarTabela(veiculos);
             }
         } catch (ExcecaoSCA ex) {
             JOptionPane.showMessageDialog(null,ex.getMsg(),"Validação",JOptionPane.ERROR_MESSAGE);            
         }
-}//GEN-LAST:event_jButtonAlterarActionPerformed
+    }//GEN-LAST:event_jButtonAlterarActionPerformed
 
-private void cbFiltroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbFiltroActionPerformed
-  try {
-    alunos = ctrCadastroAluno.listarTodos(cbFiltro.getSelectedIndex());
-    atualizarTabela(alunos);
-  } catch (ExcecaoSCA ex) {
-            JOptionPane.showMessageDialog(null,ex.getMsg(),"Validação",JOptionPane.ERROR_MESSAGE);
-  }
-}//GEN-LAST:event_cbFiltroActionPerformed
+    private void jTextFieldPesquisaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldPesquisaKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            try {
+                int column = cbFiltro.getSelectedIndex();
+                String value = jTextFieldPesquisa.getText();
 
-private void jButtonConsultarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConsultarActionPerformed
-        try {
-            // TODO add your handling code here:
-            JFrmAluno jDialogAluno;  
-            aluno = new Aluno();
-            aluno.setMatricula( (Integer) jTableAluno.getValueAt(jTableAluno.getSelectedRow(),0));
-            ctrCadastroAluno.carregar(aluno);
-            jDialogAluno = new JFrmAluno(parent,2, aluno);
-            jDialogAluno.setLocationRelativeTo(this);
-            jDialogAluno.setVisible(true);
-           
-        } catch (ExcecaoSCA ex) {
-            JOptionPane.showMessageDialog(null,ex.getMsg(),"Validação",JOptionPane.ERROR_MESSAGE);            
+                veiculos = ctrCadastroVeiculo.listarVeiculos(column, value);
+                atualizarTabela(veiculos);
+            } catch (ExcecaoSCA ex) {
+                JOptionPane.showMessageDialog(null, ex.getMsg(), "Validação", JOptionPane.ERROR_MESSAGE);
+            }
         }
-
-}//GEN-LAST:event_jButtonConsultarActionPerformed
-
-    private void jTableAlunoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableAlunoMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTableAlunoMouseClicked
+    }//GEN-LAST:event_jTextFieldPesquisaKeyPressed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -384,10 +394,9 @@ private void jButtonConsultarActionPerformed(java.awt.event.ActionEvent evt) {//
     private javax.swing.JPanel jPanel;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTable jTableAluno;
     private javax.swing.JTextField jTextFieldPesquisa;
     private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JTable tblVeiculo;
     // End of variables declaration//GEN-END:variables
 
 }

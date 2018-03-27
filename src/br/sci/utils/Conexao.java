@@ -16,7 +16,7 @@ public class Conexao {
 		
     private Conexao() {	
         try  {
-            ResourceBundle prop = ResourceBundle.getBundle("br.sca.utils.bdPostGreSQL");
+            ResourceBundle prop = ResourceBundle.getBundle("br.sci.utils.bdPostGreSQL");
 
             String driver = prop.getString("driver");				
             String bd = prop.getString("bd");

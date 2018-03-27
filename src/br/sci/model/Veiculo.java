@@ -1,7 +1,10 @@
 package br.sci.model;
 
+import java.util.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 
 /**
  * Sistema para Concessionária Integrado 1.0
@@ -122,7 +125,7 @@ public class Veiculo {
      * @return Data em formato ISO.
      */
     public String getDataCadastroString() {
-        return dataCadastro.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        return dataCadastro.getDayOfMonth()+ "/" + dataCadastro.getMonthValue()+ "/" + dataCadastro.get(ChronoField.YEAR);
     }
 
     /**
@@ -131,5 +134,13 @@ public class Veiculo {
      */
     public void setDataCadastro(LocalDate dataCadastro) {
         this.dataCadastro = dataCadastro;
-    }    
+    }   
+    
+    /**
+     * Define data de cadastro do Veiculo.
+     * @param d Data.
+     */
+    public void setDataCadastro(Date d) {
+        this.dataCadastro = LocalDate.of(d.getYear(), d.getMonth(), d.getDate());
+    }     
 }

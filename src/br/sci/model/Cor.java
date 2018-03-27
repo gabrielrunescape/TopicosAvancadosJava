@@ -13,6 +13,14 @@ public class Cor {
     private int ID;
     private String hex;
     private String nome;
+    
+    /**
+     * Define os paramêtros iniciais para Cor.
+     * @param ID Código identificador.
+     */
+    public Cor(int ID) {
+        this.ID = ID;
+    }
 
     /**
      * Define paramêtros iniciais para Cor.
@@ -30,7 +38,7 @@ public class Cor {
      * @param hex Código em hexadecimal.
      * @param nome Cor.
      */
-    public Cor(int ID, String hex, String nome) {
+    public Cor(int ID, String nome, String hex) {
         this.ID = ID;
         this.hex = hex;
         this.nome = nome;

@@ -1,6 +1,20 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package br.sci.view;
 
+import java.awt.Frame;
+import java.util.List;
+import br.sci.model.Cor;
+import br.sci.dao.CorDAO;
+import javax.swing.JDialog;
 import br.sci.model.Veiculo;
+import br.sci.controller.CtrCadastroVeiculo;
+import br.sci.utils.ExcecaoSCA;
+import javax.swing.JOptionPane;
+
 
 /**
  * Sistema para Concessionária Integrado 1.0
@@ -8,17 +22,27 @@ import br.sci.model.Veiculo;
  * Função: Camada View para poder acessar ao objeto Veiculo.
  * 
  * @version 1.0
- * @since 2018-03-25
+ * @since 2018-03-26
  * @author GabrielRuneScape
  */
-public class JFrmVeiculo extends javax.swing.JFrame {
+public class JFrmVeiculo extends JDialog {
+    private int opc;
+    private List<Cor> cores;
+    private boolean sucesso = false;
+    private CorDAO dao = new CorDAO();
+    private CtrCadastroVeiculo controller = CtrCadastroVeiculo.getInstance() ;
+    
     /**
      * Construtor JFrmVeiculo com opção para visualização do Veiculo.
      * @param opc 1 - Inserção; 2 - Alteração; 3 - Visualização.
      * @param veiculo Objeto a ser trabalhado;
      */
-    public JFrmVeiculo(int opc, Veiculo veiculo) {
+    public JFrmVeiculo(Frame parent, int opc, Veiculo veiculo) {
+        super(parent, true);
+        
+        this.opc = opc;
         initComponents();
+        cbCor.removeAllItems();
         cbModelo.removeAllItems();
         cbFabricacao.removeAllItems();
         
@@ -33,18 +57,35 @@ public class JFrmVeiculo extends javax.swing.JFrame {
             cbFabricacao.addItem("" + i);
         }
         
+        cores = dao.getAll();
+        
+        for (Cor c : cores) {
+            cbCor.addItem(c.getNome());
+        }
+        
         switch (opc) {
             case 1:
                 this.setTitle("Inserir novo veículo");
                 break;
             case 2:
-                this.setTitle("Editar veículo - ");
+                txtCodigo.setText("0" + veiculo.getID());
+                cbCor.setSelectedItem(veiculo.getCor().getNome());
+                cbModelo.setSelectedItem(veiculo.getAnoModelo() + "");
+                this.setTitle("Editar veículo - " + veiculo.getModelo());
+                cbFabricacao.setSelectedItem(veiculo.getAnoFabricacao()+ "");
                 break;
             case 3:
             default:
-                this.setTitle("Visualizar - ");
+                cbCor.setEditable(false);
+                cbModelo.setEditable(false);
+                txtChassi.setEditable(false);
+                txtModelo.setEditable(false);
+                cbFabricacao.setEditable(false);
+                this.setTitle("Visualizar veículo - " + veiculo.getModelo());
                 break;
         }
+        
+        this.getRootPane().setDefaultButton(btnOK);
     }
 
     /**
@@ -56,54 +97,62 @@ public class JFrmVeiculo extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        txtCadastro = new javax.swing.JTextField();
+        txtModelo = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
+        cbCor = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
+        cbModelo = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
+        cbFabricacao = new javax.swing.JComboBox<>();
         jLabel4 = new javax.swing.JLabel();
+        btnOK = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
+        btnCancelar = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         txtCodigo = new javax.swing.JTextField();
         txtChassi = new javax.swing.JTextField();
-        txtCadastro = new javax.swing.JTextField();
-        txtModelo = new javax.swing.JTextField();
-        cbCor = new javax.swing.JComboBox<>();
-        cbModelo = new javax.swing.JComboBox<>();
-        cbFabricacao = new javax.swing.JComboBox<>();
-        btnOK = new javax.swing.JButton();
-        btnCancelar = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setBackground(new java.awt.Color(255, 255, 255));
-        setResizable(false);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        txtCadastro.setEditable(false);
 
         jLabel1.setText("Código");
 
+        cbCor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Vermelho" }));
+
         jLabel2.setText("Cor");
+
+        cbModelo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2000" }));
 
         jLabel3.setText("Modelo");
 
+        cbFabricacao.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2000" }));
+
         jLabel4.setText("Chassi");
 
+        btnOK.setText("OK");
+        btnOK.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOKActionPerformed(evt);
+            }
+        });
+
         jLabel5.setText("Ano Fab.");
+
+        btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         jLabel6.setText("Ano Mod.");
 
         jLabel7.setText("Data Cadastro");
 
         txtCodigo.setEditable(false);
-
-        txtCadastro.setEditable(false);
-
-        cbCor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Vermelho" }));
-
-        cbModelo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2000" }));
-
-        cbFabricacao.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2000" }));
-
-        btnOK.setText("OK");
-
-        btnCancelar.setText("Cancelar");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -118,7 +167,7 @@ public class JFrmVeiculo extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
                     .addComponent(txtChassi, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 148, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(txtCadastro, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7))
@@ -187,6 +236,42 @@ public class JFrmVeiculo extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOKActionPerformed
+        try {
+            Veiculo veiculo = new Veiculo();
+            
+            veiculo.setChassi(txtChassi.getText());
+            veiculo.setModelo(txtModelo.getText());
+            veiculo.setAnoModelo(Integer.parseInt(cbModelo.getSelectedItem() + ""));
+            veiculo.setAnoFabricacao(Integer.parseInt(cbFabricacao.getSelectedItem()+ ""));
+            veiculo.setCor(cores.get(cbCor.getSelectedIndex()));
+
+            switch (opc) {
+                case 1:
+                    controller.incluir(veiculo);
+                    break;
+                case 2:
+                    veiculo.setID(Integer.parseInt(txtCodigo.getText()));
+                    controller.alterar(veiculo);
+                    break;
+            }
+
+            sucesso = true;
+            this.setVisible(false);
+        } catch (ExcecaoSCA ex) {
+            JOptionPane.showMessageDialog(null,ex.getMsg(), "Validação", JOptionPane.INFORMATION_MESSAGE);
+            txtChassi.requestFocus();
+        }
+    }//GEN-LAST:event_btnOKActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        this.setVisible(false);
+    }//GEN-LAST:event_btnCancelarActionPerformed
+
+    public boolean isSucesso() {
+        return sucesso;
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnOK;
